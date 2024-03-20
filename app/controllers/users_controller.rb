@@ -13,20 +13,15 @@ class UsersController < ApplicationController
       # file_name = File.open("public/user_images/#{file_name}", 'wb')
       # @user.portrait = file_name
     #  @user.save
+    if @user.save
       log_in(@user)
-      respond_to do |format|
-        if @user.save
-          UserMailer.with(to: "test@example.com", name: "dic").welcome.deliver_now 
-          format.html { redirect_to @user, notice: 'User was successfully created.' }
-          format.json { render :show, status: :created, location: @user }
-        else
-          format.html { render :new }
-          format.json { render json: @user.errors, status: :unprocessable_entity }
-        end
+      UserMailer.with(to: @user.email, name: @user.name).welcome.deliver_later
+      redirect_to @user, notice: 'アカウントを登録しました。' 
+    else
+      render :new 
+    end
       # UserMailer.with(user: @user).welcome_mail.deliver_later
       # NotificationMailer.send_when_signup(@user).deliver
-      
-    end
   end
 
   def show
